@@ -7,10 +7,21 @@ namespace TrainingAnalysis
     public class RunningSession: TrainingSession
     {
         public List<int> mCadenceVector { get; }
+        public static int CadenceError = -1;
 
         public RunningSession(string startString): base(startString)
         {
             mCadenceVector = new List<int> { };
+        }
+
+        protected override void FillInitCounter()
+        {
+            InitCounter.Add(Enums.SessionTag.Time, new InitValues(InitDefault));
+            InitCounter.Add(Enums.SessionTag.DistanceMeters, new InitValues(InitDefault));
+            InitCounter.Add(Enums.SessionTag.Position, new InitValues(InitDefault));
+            InitCounter.Add(Enums.SessionTag.Value, new InitValues(InitDefault)); // The innermost tag for heart rate. Value exist in no other context 
+            InitCounter.Add(Enums.SessionTag.AltitudeMeters, new InitValues(InitDefault));
+            InitCounter.Add(Enums.SessionTag.Cadence, new InitValues(InitDefault));
         }
 
         protected override bool loadTrackPoint(string trackPoint, bool first)

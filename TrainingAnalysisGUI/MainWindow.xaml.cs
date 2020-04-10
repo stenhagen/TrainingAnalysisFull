@@ -26,7 +26,7 @@ namespace TrainingAnalysisGUI
             InitializeComponent();
         }
 
-        private void sessionUpload_Click(object sender, RoutedEventArgs e)
+        private void SessionUpload_Click(object sender, RoutedEventArgs e)
         {
             FileReader f = new FileReader();
             string path = @sessionPath.Text;
