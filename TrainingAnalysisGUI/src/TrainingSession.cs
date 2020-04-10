@@ -19,6 +19,18 @@ namespace TrainingAnalysis
         public List<int> mHRVector { get; }
         public int mTicks { get; internal set;}
 
+        protected Dictionary<object, InitValues> InitCounter { get; }
+
+        public static DateTime StartTimeError = null;
+        public static int TimeError = -1;
+        public static double DistError = -1;
+        public static Position PosError = null;
+        public static double AltError = 10001;
+        public static int HRError = -1;
+
+        public static int InitThreshold = 10;
+        public static int InitDefault = -1;
+
         public TrainingSession(string startString)
         {
             mStartTime = new DateTime(startString);
@@ -28,7 +40,11 @@ namespace TrainingAnalysis
             mAltVector = new List<double> { };
             mHRVector = new List<int> { };
             mTicks = 0;
+            InitCounter = new Dictionary<object, InitValues>();
+            FillInitCounter();
         }
+
+        protected abstract void FillInitCounter();
 
         public static Dictionary<string, string> getHeaderInfo(string header)
         {
@@ -96,100 +112,34 @@ namespace TrainingAnalysis
             return true;
         }
 
+        protected string CheckTagAndGetInner(string trackPoint, string tagName)
+        {
+            TagPair formattedTag = XMLHelper.GetTagPair(tagName);
+            string pattern = formattedTag.start + "(.*)" + formattedTag.end;
+            Regex tag = new Regex(pattern);
+            Match match = tag.Match(trackPoint);
+            if (match.Success)
+            {
+                return match.Groups[1].Value;
+            }
+            else
+            {
+                return "NOK";
+            }
+        }
+
         protected abstract bool loadTrackPoint(string trackPoint, bool first);
-
-    }
-    public struct DateTime
-    {
-        public Dictionary<string, int> mDate { get; }
-        public DateTime(string date)
-        {
-            string[] units = new string[] { "year", "month", "day", "hour", "minute", "second" };
-
-            mDate = new Dictionary<string, int> { };
-
-            Regex numberRx = new Regex(@"\d+");
-            MatchCollection matches = numberRx.Matches(date);
-
-            if (matches.Count < units.Length)
-            {
-                Exception rex = new Exception(String.Format("Regex should have matched at least {0} but matched {1} items", units.Length, matches.Count));
-                throw rex;
-            }
-
-            for (int k = 0; k < units.Length; k++)
-            {
-                string matchString = matches[k].ToString();
-                int unitNumber = -1;
-                try
-                {
-                    unitNumber = int.Parse(matchString);
-                }
-                catch (FormatException e)
-                {
-                    Console.WriteLine(e.Message);
-                }
-                mDate.Add(units[k], unitNumber);
-            }
-        }
-
-        public int getDifference(DateTime comp)
-        {
-            // Calculates the difference in time between the reference and comp, supposing comp is after reference
-            string[] units = new string[] { "year", "month", "day", "hour", "minute", "second" };
-
-            int[] daysInMonth = new int[] { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-            Dictionary<string, int> factors = new Dictionary<string, int> { };
-            factors.Add("year", 365);
-            factors.Add("day", 24);
-            factors.Add("hour", 60);
-            factors.Add("minute", 60);
-            factors.Add("second", 1);
-
-            int diff = 0;
-            int factor = 1;
-            for (int k = units.Length - 1; k >= 0; k--)
-            {
-                if (units[k] == "month")
-                {
-                    int daysDiff = 0;
-                    if (mDate["month"] <= comp.mDate["month"])
-                    {
-                        for (int m = mDate["month"]; m < comp.mDate["month"]; m++)
-                        {
-                            daysDiff = daysDiff + daysInMonth[m];
-                        }
-                    }
-                    else
-                    {
-                        int wrapAround = 0;
-                        for (int m = comp.mDate["month"]; m < mDate["month"]; m++)
-                        {
-                            wrapAround = wrapAround + daysInMonth[m];
-                        }
-                        daysDiff = -wrapAround;
-                    }
-                    diff = diff + factor * daysDiff;
-                }
-                else
-                {
-                    factor = factor * factors[units[k]];
-                    diff = diff + factor * (comp.mDate[units[k]] - mDate[units[k]]);
-                }
-            }
-            return diff;
-        }
-
     }
 
-    public struct Position
+    public class InitValues
     {
-        public double mLatitude { get; }
-        public double mLongitude { get; }
-        public Position(double lat, double lon)
+        public int Counter { get; set; }
+        public int Final { get; set; }
+
+        public InitValues(int init)
         {
-            mLatitude = lat;
-            mLongitude = lon;
+            Counter = init;
+            Final = init;
         }
     }
 }

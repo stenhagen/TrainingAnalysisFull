@@ -6,9 +6,9 @@ namespace TrainingAnalysis
 {
     public static class Misc
     {
-        public static int stringToInt(string number)
+        public static int stringToInt(string number, int errorNumber = -1)
         {
-            int n = -1;
+            int n = errorNumber;
             try
             {
                 n = int.Parse(number);
@@ -20,10 +20,10 @@ namespace TrainingAnalysis
             return n;
         }
 
-        public static float stringToFloat(string number)
+        public static float stringToFloat(string number, float errorNumber = -1)
         {
             number = commaDotConversion(number);
-            float n = -1;
+            float n = errorNumber;
             try
             {
                 n = float.Parse(number);
@@ -35,10 +35,10 @@ namespace TrainingAnalysis
             return n;
         }
 
-        public static double stringToDouble(string number)
+        public static double stringToDouble(string number, double errorNumber = -1)
         {
             number = commaDotConversion(number);
-            double n = -1;
+            double n = errorNumber;
             try
             {
                 n = double.Parse(number);

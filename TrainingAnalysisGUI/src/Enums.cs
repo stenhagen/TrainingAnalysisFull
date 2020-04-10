@@ -28,5 +28,11 @@ namespace TrainingAnalysis
             SensorState,
             Position
         }
+
+        public enum ErrorString
+        {
+            OK,
+            NOK
+        }
     }
 }

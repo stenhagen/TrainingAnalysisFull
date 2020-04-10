@@ -31,7 +31,7 @@
                  Margin="10,0, 0, 0" Width="400"/>
 
         <Button x:Name ="sessionUpload" Grid.Row="2" Grid.Column="4" Margin="10, 0, 0, 0" Width="80" 
-                Content="Upload Session" FontSize="12" HorizontalAlignment="Left" Click="sessionUpload_Click"/>
+                Content="Upload Session" FontSize="12" HorizontalAlignment="Left" Click="SessionUpload_Click"/>
 
     </Grid>
 </Window>

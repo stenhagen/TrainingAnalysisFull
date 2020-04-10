@@ -77,7 +77,7 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void TestLoadSessionBody()
+        public void TestLoadSessionBodyRunning()
         {
 
             // Reading a training session file and checking that the first and last produced datapoints are registered
@@ -106,6 +106,36 @@ namespace UnitTests
             DoubleWithinMargin(68.886, ts.mAltVector[2755], 0.000001);
             DoubleWithinMargin(11815.2001953125, ts.mDistVector[2755], 0.000001);
             Assert.AreEqual(166, ts.mHRVector[2755]);
+        }
+
+        [TestMethod]
+        public void TestLoadSessionCycling()
+        {
+            FileReader f = new FileReader();
+            string path = @"C:\own\programming\projects\TrainingAnalysisFull\TrainingAnalysisGUI\sessions\Petter_Stenhagen_2019-07-30_17-02-02.tcx";
+            string session = f.readFile(path);
+            string startTime = TrainingSession.getHeaderInfo(session)["startTime"];
+            CyclingSession cs = new CyclingSession(startTime);
+            bool success = cs.loadSessionBody(session);
+            Assert.IsTrue(success);
+            Assert.AreEqual(2516, cs.mTimeVector.Count);
+
+            // First
+            Assert.AreEqual(0, cs.mTimeVector[0]);
+            Assert.IsNull(cs.mPosVector[0]);
+            DoubleWithinMargin(TrainingSession.AltError, cs.mAltVector[0], 0.000001);
+            DoubleWithinMargin(TrainingSession.DistError, cs.mDistVector[0], 0.000001);
+            Assert.AreEqual(TrainingSession.HRError, cs.mHRVector[0]);
+
+            // next to last 
+            int i = 2514;
+            Assert.AreEqual(i, cs.mTimeVector[i]);
+            DoubleWithinMargin(58.52981167, cs.mPosVector[i].mLatitude, 0.000001);
+            DoubleWithinMargin(15.45538167, cs.mPosVector[i].mLongitude, 0.000001);
+            DoubleWithinMargin(70.562, cs.mAltVector[i], 0.000001);
+            DoubleWithinMargin(18551, cs.mDistVector[i], 0.000001);
+            Assert.AreEqual(TrainingSession.HRError, cs.mHRVector[i]);
+
         }
 
         // Misc

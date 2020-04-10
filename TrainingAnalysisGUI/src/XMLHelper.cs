@@ -88,6 +88,8 @@ namespace TrainingAnalysis
             int contentLength = s.IndexOf(end) + end.Length;
             return s.Substring(0, contentLength);
         }
+
+         
     }
 
     public struct TagPair
