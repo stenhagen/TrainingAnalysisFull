@@ -53,7 +53,7 @@ namespace TrainingAnalysis
                     case Enums.SessionTag.Time:
                         if (!elementExists)
                         {
-                            mTimeVector.Add(TrainingSession.TimeError);
+                            mTimeVector.Add(TimeError);
                             break;
                         }
 
@@ -97,7 +97,7 @@ namespace TrainingAnalysis
                                 }
                             }
                         }
-                        mPosVector.Add(TrainingSession.PosError);
+                        mPosVector.Add(PosError);
                         break;
 
                     case Enums.SessionTag.AltitudeMeters:
@@ -111,7 +111,7 @@ namespace TrainingAnalysis
                                 break;
                             }
                         }
-                        mAltVector.Add(TrainingSession.AltError);
+                        mAltVector.Add(AltError);
                         break;
 
                     case Enums.SessionTag.DistanceMeters:
@@ -125,7 +125,7 @@ namespace TrainingAnalysis
                                 break;
                             }
                         }
-                        mDistVector.Add(TrainingSession.DistError);
+                        mDistVector.Add(DistError);
                         break;
 
                     case Enums.SessionTag.Value:
@@ -139,7 +139,7 @@ namespace TrainingAnalysis
                                 break;
                             }
                         }
-                        mHRVector.Add(TrainingSession.HRError);
+                        mHRVector.Add(HRError);
                         break;
 
                     case Enums.SessionTag.SensorState:
