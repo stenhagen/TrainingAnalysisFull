@@ -26,30 +26,16 @@ namespace TrainingAnalysisGUI
             InitializeComponent();
         }
 
-        private void SessionUpload_Click(object sender, RoutedEventArgs e)
+        private void Register_Click(object sender, RoutedEventArgs e)
         {
-            FileReader f = new FileReader();
-            string path = @sessionPath.Text;
-            string sessionFile = f.readFile(path);
-            Dictionary<string, string> header = TrainingSession.getHeaderInfo(sessionFile);
-            string activity = header["activity"];
-            TrainingSession session;
-            switch (activity)
-            {
-                case "Running":
-                    session = new RunningSession(header["startTime"]);
-                    session.loadSessionBody(sessionFile);
-                    MessageBox.Show("Number of data points in session: " + session.mTicks.ToString());
-                    break;
-                case "Biking":
-                    session = new CyclingSession(header["startTime"]);
-                    session.loadSessionBody(sessionFile);
-                    MessageBox.Show("Number of data points in session: " + session.mTicks.ToString());
-                    break;
-                default:
-                    break;
-                    
-            }
+
+        }
+
+        private void Login_Click(object sender, RoutedEventArgs e)
+        {
+            Login loginWin = new Login();
+            this.Close();
+            loginWin.Show();
         }
     }
 }
