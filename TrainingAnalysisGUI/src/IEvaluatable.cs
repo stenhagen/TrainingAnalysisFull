@@ -8,4 +8,10 @@ namespace TrainingAnalysis
     {
         public double EvaluateNumerically(string propertyName);  
     }
+
+    public class PropertyNotSupportedException : Exception
+    {
+        public PropertyNotSupportedException() : base() { }
+        public PropertyNotSupportedException(string message) : base(message) { }
+    }
 }

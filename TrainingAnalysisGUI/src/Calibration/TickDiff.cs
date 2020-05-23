@@ -19,7 +19,11 @@ namespace TrainingAnalysis
                 mLongDiff = long1 - long0;
                 mAltDiff = alt0 - alt1;
                 mDist = dist1 - dist0;
-
+                if (mDist <= 0.0001) 
+                {
+                    NoDistanceDiffException ex = new NoDistanceDiffException();
+                    throw ex;
+                }
             }
 
             public TickDiff(TrainingSession ts, int index, int ticksDiff)
@@ -28,7 +32,18 @@ namespace TrainingAnalysis
                 mLongDiff = ts.mPosVector[index + ticksDiff].mLongitude - ts.mPosVector[index].mLongitude;
                 mAltDiff = ts.mAltVector[index + ticksDiff] - ts.mAltVector[index];
                 mDist = ts.mDistVector[index + ticksDiff] - ts.mDistVector[index];
+                if (mDist <= 0.0001)
+                {
+                    NoDistanceDiffException ex = new NoDistanceDiffException();
+                    throw ex;
+                }
             }
+        }
+
+        public class NoDistanceDiffException: Exception
+        {
+            public NoDistanceDiffException(): base("Distance between neighbouring points is too close to 0") { }
+            public NoDistanceDiffException(string message): base(message) { }
         }
     }
 }

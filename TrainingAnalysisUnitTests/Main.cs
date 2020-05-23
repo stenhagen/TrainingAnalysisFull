@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TrainingAnalysis;
+using TrainingAnalysis.Calibration;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -233,6 +234,19 @@ namespace UnitTests
             string s = "<AltitudeMeters>68.886</AltitudeMeters><DistanceMeters>11815.2001953125</DistanceMeters>";
             string content = "<AltitudeMeters>68.886</AltitudeMeters>";
             Assert.AreEqual(content, XMLHelper.getNextTagContent(s));
+        }
+
+        [TestMethod]
+        public void TestShouldAltBeUsed()
+        {
+            FileReader f = new FileReader();
+            string path = @"C:\own\programming\projects\TrainingAnalysisFull\TrainingAnalysisGUI\sessions\Petter_Stenhagen_2019-07-30_17-02-02.tcx";
+            string session = f.readFile(path);
+            string startTime = TrainingSession.getHeaderInfo(session)["startTime"];
+            CyclingSession cs = new CyclingSession(startTime);
+            bool success = cs.loadSessionBody(session);
+            Calibration.ShouldAltBeUsed(cs);
+            Assert.IsTrue(true);
         }
     }
 }

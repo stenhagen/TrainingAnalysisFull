@@ -9,8 +9,8 @@ namespace TrainingAnalysis.Calibration
     {
         public TickDiff TickDiff1 { get; }
         public TickDiff TickDiff2 { get; }
-        public ConversionFactors Prediction { get; set; }
-        public double Error { get; set; }
+        public ConversionFactors Prediction { get; set; } = null;
+        public double Error { get; set; } = -1;
 
         public TickDiffPair(TickDiff td1, TickDiff td2)
         {
@@ -30,22 +30,20 @@ namespace TrainingAnalysis.Calibration
         public double EvaluateNumerically(string propertyName)
         {
             PropertyInfo info = typeof(TickDiffPair).GetProperty(propertyName);
-            object value = info.GetValue(this);
-            if ( value != null)
+            if ( info != null)
             {
-                return (double)value;
+                return (double) info.GetValue(this);
             }
             else
             {
                 info = Prediction.GetType().GetProperty(propertyName);
-                value = info.GetValue(Prediction);
-                if (value != null)
+                if (info != null)
                 {
-                    return (double)value;
+                    return (double)info.GetValue(Prediction);
                 }
                 else
                 {
-                    Exception e = new Exception($"{propertyName} is not a valid property for type {nameof(TickDiffPair)}");
+                    PropertyNotSupportedException e = new PropertyNotSupportedException($"{propertyName} is not a valid property for type {nameof(TickDiffPair)}");
                     throw e;
                 }
             }

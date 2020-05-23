@@ -20,15 +20,6 @@ namespace TrainingAnalysis
 
             // Calibration contain methods for finding and validating factors transforming GPS coordinates to meters.
             // ToDo: make static
-            private List<TickDiff> TrimPointPairList(List<TickDiff[]> tickDiffPairs)
-            {
-                List<TickDiff> tickDiffs = new List<TickDiff>();
-                foreach (TickDiff[] pair in tickDiffPairs)
-                {
-                    tickDiffs.Add(pair[0]);
-                }
-                return tickDiffs;
-            }
 
             public static bool ShouldAltBeUsed(TrainingSession ts)
             {
@@ -63,27 +54,42 @@ namespace TrainingAnalysis
                 HashSet<int> usedPoints = new HashSet<int> { };
                 while (tickDiffPairs.Count < n)
                 {
-                    TickDiff[] tickDiffPair = new TickDiff[2];
+                    TickDiff[] candidatePair = new TickDiff[2];
                     int[] tickNumbers = new int[2];
                     for (int k = 0; k < 2; k++)
                     {
-                        bool altSuccess = false;
+                        bool foundCandidate = false;
 
-                        while (!altSuccess)
+                        while (!foundCandidate)
                         {
                             // Comparing the tick with the next tick
                             tickNumbers[k] = rand.Next(0, ticks - (ticksDiff + 1));
-                            if (usedPoints.Contains(tickNumbers[k]))
+                            bool isUsed = usedPoints.Contains(tickNumbers[k]);
+                            bool altSuccess = Math.Abs(ts.mAltVector[tickNumbers[k]] - ts.mAltVector[tickNumbers[k] + ticksDiff]) > AltThresh;
+                            if (!isUsed || altSuccess)
                             {
-                                continue;
+                                TickDiff candidate;
+                                try
+                                {
+                                    candidate = new TickDiff(ts, tickNumbers[k], ticksDiff);
+                                }
+                                catch (NullReferenceException e)
+                                {
+                                    continue;
+                                }
+                                catch (NoDistanceDiffException e)
+                                {
+                                    continue;
+                                }
+                                candidatePair[k] = candidate;
+                                foundCandidate = true;
                             }
-                            altSuccess = Math.Abs(ts.mAltVector[tickNumbers[k]] - ts.mAltVector[tickNumbers[k] + ticksDiff]) > AltThresh;
                         }
-                        tickDiffPair[k] = new TickDiff(ts, tickNumbers[k], ticksDiff);
                     }
+                    TickDiffPair tickDiffPair = new TickDiffPair(candidatePair[0], candidatePair[1]);
                     if (CheckPair(tickDiffPair))
                     {
-                        tickDiffPairs.Add(new TickDiffPair(tickDiffPair[0], tickDiffPair[1]));
+                        tickDiffPairs.Add(tickDiffPair);
                         // Adding the first tick in each tickDiff used tickDiffs  
                         usedPoints.Add(tickNumbers[0]);
                         usedPoints.Add(tickNumbers[1]);
@@ -92,24 +98,33 @@ namespace TrainingAnalysis
                 return tickDiffPairs;
             }
 
-
             private ConversionFactors CalibrateIteratively(List<TickDiffPair> calibrationSet, List<TickDiffPair> validationSet)
             {
                 void DiscardOutliers(int minNumber, double succesiveErrorThreshold)
                 {
+                    int discardIndex = -1;
                     for (int k = minNumber; k < calibrationSet.Count; k++)
                     {
                         if ((calibrationSet[k].Error - calibrationSet[k - 1].Error)/ calibrationSet[k - 1].Error > succesiveErrorThreshold)
                         {
-                            calibrationSet.RemoveRange(k, calibrationSet.Count - k);
+                            discardIndex = k;
+                            break;
                         }
-                    } 
+                    }
+                    if (discardIndex != -1)
+                    {
+                        calibrationSet.RemoveRange(discardIndex, calibrationSet.Count - discardIndex);
+                    }
                 }
 
                 // Predictions are added to the set element
                 foreach (TickDiffPair pair in calibrationSet)
                 {
                     RunSingleCalibration(pair);
+                }
+                calibrationSet = calibrationSet.FindAll(p => p.Prediction != null);
+                foreach (TickDiffPair pair in calibrationSet)
+                {
                     CalculateCalibrationError(pair, validationSet);
                 }
                 calibrationSet.Sort();
@@ -138,12 +153,17 @@ namespace TrainingAnalysis
                     d0 = Math.Pow(pair.TickDiff1.mDist, 2);
                     d1 = Math.Pow(pair.TickDiff2.mDist, 2);
                 }
-                    
-                double y = Math.Sqrt((a0 * d1 - a1 * d0) / (a0 * b1 - a1 * b0));
-                double x = Math.Sqrt((d0 / a0) * ((b0 * (a0 * d1 - a1 * d0)) / (a0 * ((a0 * b1 - a1 * b0)))));
-                pair.Prediction = new ConversionFactors(x, y);
-            }
 
+                double y = Math.Sqrt((a0 * d1 - a1 * d0) / (a0 * b1 - a1 * b0));
+                double x = Math.Sqrt((d0 / a0) - (b0 * (a1 * d0 - a0 * d1)) / (a0 * (a1 * b0 - a0 * b1)));
+                 
+                if (!Double.IsNaN(y) && !Double.IsNaN(x)) 
+                {
+                    // This should be controlled for already in FindCandidate()
+                    pair.Prediction = new ConversionFactors(x, y);
+                }
+            }
+            
             private void CalculateCalibrationError(TickDiffPair predictionPair, List<TickDiffPair> validationSet)
             {
                 predictionPair.Error = CalculateCalibrationError(predictionPair.Prediction, validationSet);
@@ -181,13 +201,13 @@ namespace TrainingAnalysis
                 return (rad * 180) / Math.PI;
             }
 
-            private bool CheckPair(TickDiff[] pair)
+            private bool CheckPair(TickDiffPair pair)
             {
                 // Checks whether candidate tick diff pair should be accepted. 
                 // Not allowing pairs that are "too parallell" 
 
-                TickDiff p0 = pair[0];
-                TickDiff p1 = pair[1];
+                TickDiff p0 = pair.TickDiff1;
+                TickDiff p1 = pair.TickDiff2;
                 const double thetaThresh = 5;
                 const double lambda = 0.000001;
 
@@ -196,13 +216,21 @@ namespace TrainingAnalysis
                 // dot = a0*b0 + a1*b1
                 //theta = arccos(dot/abs)
                 double abs = Math.Sqrt(Math.Pow(p0.mLatDiff, 2) + Math.Pow(p0.mLongDiff, 2)) * Math.Sqrt(Math.Pow(p1.mLatDiff, 2) + Math.Pow(p1.mLongDiff, 2));
-                double dot = p0.mLatDiff * p1.mLatDiff + p0.mLongDiff + p1.mLongDiff;
+                double dot = p0.mLatDiff * p1.mLatDiff + p0.mLongDiff * p1.mLongDiff;
 
-                // What does this do?
-                if (dot < Math.Min(Math.Min(Math.Min(p0.mLatDiff, p1.mLatDiff), p0.mLongDiff), p1.mLongDiff) / 5 || dot < lambda)
+                List<double> diffs = new List<double>()
                 {
-                    return true;
+                    p0.mLatDiff,
+                    p1.mLatDiff,
+                    p0.mLongDiff,
+                    p1.mLongDiff
+                };
+
+                if (!diffs.TrueForAll(diff => Math.Abs(diff) > lambda))
+                { 
+                    return false;
                 }
+
                 double theta = Math.Acos(dot / abs);
                 double thetaDeg = toDegrees(theta);
                 return thetaDeg > thetaThresh && thetaDeg < 180 - thetaThresh;
