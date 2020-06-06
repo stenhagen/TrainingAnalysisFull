@@ -19,6 +19,11 @@ namespace TrainingAnalysisGUI
     /// </summary>
     public partial class Register : Window
     {
+        private const string USERNAME = "Username";
+        private const string PASSWORD = "Password";
+        private const double TEXTBOX_OPACITY_DEFAULT = 0.4;
+        private const double TEXTBOX_OPACITY_CONTENT = 1;
+
         public Register()
         {
             InitializeComponent();
@@ -29,6 +34,42 @@ namespace TrainingAnalysisGUI
         {
             bool success = User.Insert(Username.Text, Password.Text);
             NotUnique.Visibility = success ? Visibility.Hidden : Visibility.Visible;
+        }
+
+        private void Username_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (Username.Text == USERNAME)
+            {
+                Username.Text = "";
+                Username.Foreground.Opacity = TEXTBOX_OPACITY_CONTENT;
+            }
+        }
+
+        private void Username_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            if(Username.Text == "")
+            {
+                Username.Text = USERNAME;
+                Username.Foreground.Opacity = TEXTBOX_OPACITY_DEFAULT;
+            }
+        }
+
+        private void Password_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (Password.Text == PASSWORD)
+            {
+                Password.Text = "";
+                Password.Foreground.Opacity = TEXTBOX_OPACITY_CONTENT;
+            }
+        }
+
+        private void Password_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (Password.Text == "")
+            {
+                Password.Text = PASSWORD;
+                Password.Foreground.Opacity = TEXTBOX_OPACITY_DEFAULT;
+            }
         }
     }
 }

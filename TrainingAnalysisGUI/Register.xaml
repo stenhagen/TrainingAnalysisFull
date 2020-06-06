@@ -49,25 +49,31 @@
 
         <TextBox x:Name="Username" 
                  Grid.Row="2" Grid.Column="1" 
-                 Text="Username"
-                 TextAlignment="Left" FontSize="26" FontWeight="Bold" Height="40">
+                 Text="Username" 
+                 Padding="10, 0, 0, 0"
+                 TextAlignment="Left" FontSize="26" FontWeight="Bold" Height="40" 
+                 LostKeyboardFocus="Username_LostKeyboardFocus" 
+                 GotKeyboardFocus="Username_GotKeyboardFocus"  >
             <TextBox.Foreground>
-                <SolidColorBrush Color="White" Opacity="0.4"></SolidColorBrush>
+                <SolidColorBrush Color="White" Opacity="0.2"></SolidColorBrush>
             </TextBox.Foreground>
             <TextBox.Background>
-                <SolidColorBrush Color="#FF282E2D" Opacity="0.8"/>
+                <SolidColorBrush Color="#FF282E2D" Opacity="0.7"/>
             </TextBox.Background>
         </TextBox>
 
         <TextBox x:Name="Password" 
                  Grid.Row="3" Grid.Column="1" 
-                 Text="Password"
-                 TextAlignment="Left" FontSize="26" Height="40" FontWeight="Bold">
+                 Text="Password" 
+                 Padding="10, 0, 0, 0"
+                 TextAlignment="Left" FontSize="26" Height="40" FontWeight="Bold" 
+                 GotKeyboardFocus="Password_GotKeyboardFocus" 
+                 LostKeyboardFocus="Password_LostKeyboardFocus">
             <TextBox.Foreground>
-                <SolidColorBrush Color="White" Opacity="0.4"></SolidColorBrush>
+                <SolidColorBrush Color="White" Opacity="0.2"></SolidColorBrush>
             </TextBox.Foreground>
             <TextBox.Background>
-                <SolidColorBrush Color="#FF282E2D" Opacity="0.8"/>
+                <SolidColorBrush Color="#FF282E2D" Opacity="0.7"/>
             </TextBox.Background>
         </TextBox>
 
