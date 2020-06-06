@@ -24,6 +24,9 @@
             <ColumnDefinition Width="20"/>
         </Grid.ColumnDefinitions>
 
+        <Rectangle Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="6" Fill="#FF282E2D"/>
+
+
         <Button x:Name ="Register" Grid.Row="0" Grid.Column="2" Margin="10, 10, 0, 10" Width="80" 
                 Content="Register" FontSize="12" HorizontalAlignment="Left"/>
 

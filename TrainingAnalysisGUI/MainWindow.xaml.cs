@@ -23,12 +23,14 @@ namespace TrainingAnalysisGUI
     {
         public MainWindow()
         {
-            InitializeComponent();
+            InitializeComponent(); 
         }
 
         private void Register_Click(object sender, RoutedEventArgs e)
         {
-
+            Register registerWin = new Register();
+            this.Close();
+            registerWin.Show();
         }
 
         private void Login_Click(object sender, RoutedEventArgs e)

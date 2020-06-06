@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TrainingAnalysis;
 using TrainingAnalysis.Calibration;
+using TrainingAnalysis.DataStorage;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -247,6 +248,13 @@ namespace UnitTests
             bool success = cs.loadSessionBody(session);
             Calibration.ShouldAltBeUsed(cs);
             Assert.IsTrue(true);
+        }
+
+        [TestMethod]
+        public void testDatabase()
+        {
+            int rowsAffected = User.GetUsers();
+            Assert.IsTrue(rowsAffected>0);
         }
     }
 }
