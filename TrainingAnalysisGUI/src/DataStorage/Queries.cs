@@ -1,62 +1,45 @@
-﻿using System.Collections.Generic;
-using System.Data.SqlClient;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
-
+using System.Data.SqlClient;
 
 namespace TrainingAnalysis.DataStorage
 {
-    public class User
+    internal static class Queries
     {
+        private readonly static String ConnectionString = "Server=.;Database=TrainingAnalysis;Trusted_Connection=True;";
 
-        public int Id { get; private set; }
-
-        public string Username { get; }
-
-        public string Password { get; }
-
-        private static string TableName = "dbo.users";
-
-        private User(int id, string username, string password)
+        internal static List<T> select<T>(String query, ) where T: IQueryable  
         {
-            Id = id;
-            Username = username;
-            Password = password;
-        }
 
-        public static int GetUsers()
-        {
-            return 0;
-            /*
             List<User> users = new List<User>();
             string query = "SELECT * FROM dbo.users";
-            using (SqlConnection connection = new SqlConnection(ConnectionSting))
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
                     var reader = command.ExecuteReader();
-                
                     int ordName = reader.GetOrdinal("username");
+                    var columnSchema = reader.GetColumnSchema();
                     while (reader.Read())
                     {
                         string username = reader.GetString(ordName);
                     }
                 }
                 return 0;
-            } 
-            */
+            }
         }
 
-        public static bool Insert(string username, string password)
+        internal static bool Insert(string username, string password)
         {
             string query = $"INSERT INTO {TableName} VALUES ('{username}', '{password}');";
-            using (SqlConnection connection = new SqlConnection(Connection.ConnectionString))
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    try 
+                    try
                     {
                         int rowsAffected = command.ExecuteNonQuery();
                         return rowsAffected == 1;
@@ -65,8 +48,7 @@ namespace TrainingAnalysis.DataStorage
                     {
                         return false;
                     }
-                }
-            }
-        }
+      
+
     }
 }
