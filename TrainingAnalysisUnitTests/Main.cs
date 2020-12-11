@@ -5,6 +5,7 @@ using TrainingAnalysis.DataStorage;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using DateTime = TrainingAnalysis.DateTime;
 
 namespace UnitTests
@@ -251,10 +252,10 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void testDatabase()
+        public void testORM()
         {
-            int rowsAffected = User.GetUsers();
-            Assert.IsTrue(rowsAffected>0);
+            List < User > users = Queries.Select<User>($"SELECT * FROM dbo.users").ToList();
+            Assert.AreEqual(users[0].Username, "Username");
         }
     }
 }

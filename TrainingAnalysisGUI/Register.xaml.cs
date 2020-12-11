@@ -32,8 +32,8 @@ namespace TrainingAnalysisGUI
 
         private void SubmitRegister_Click(object sender, RoutedEventArgs e)
         {
-            bool success = User.Insert(Username.Text, Password.Text);
-            NotUnique.Visibility = success ? Visibility.Hidden : Visibility.Visible;
+            //bool success = User.Insert(Username.Text, Password.Text);
+            //NotUnique.Visibility = success ? Visibility.Hidden : Visibility.Visible;
         }
 
         private void Username_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)

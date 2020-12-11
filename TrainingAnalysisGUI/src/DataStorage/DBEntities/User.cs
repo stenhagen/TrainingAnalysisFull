@@ -1,29 +1,26 @@
 ﻿using System.Collections.Generic;
-
 using System;
 using System.Text;
+using System.Linq;
 
 
 namespace TrainingAnalysis.DataStorage
 {
-    public class User: DBEntity
+    public class User : IQueryable
     {
+        private static string TableName { get; set; } = "[dbo].users"; 
+        public int ID { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
 
-        public int Id { get; private set; }
-
-        public string Username { get; }
-
-        public string Password { get; }
-
-        private readonly static string TableName = "dbo.users";
-
-        private User(int id, string username, string password)
+        public string GetTableName(){return TableName;} 
+        public string FormatColumnsSQL()
         {
-            Id = id;
-            Username = username;
-            Password = password;
+            return $"({nameof(ID).ToLower()}, {nameof(Username).ToLower()}, {nameof(Password).ToLower()})";
         }
-
-
+        public string FormatArgsSQL(){return $"({ID}, {Username}, {Password})";}
+        public string GetPrimaryKeyName() { return nameof(ID).ToLower(); }
+        
+        public int GetPrimaryKeyValue() { return ID; }
     }
 }

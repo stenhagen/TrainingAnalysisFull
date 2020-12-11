@@ -4,7 +4,13 @@ using System.Text;
 
 namespace TrainingAnalysis.DataStorage
 {
-    interface IQueryable
+    public interface IQueryable
     {
+        public string FormatColumnsSQL();
+        public string FormatArgsSQL();
+        public string GetTableName();
+        public string GetPrimaryKeyName();
+        public int GetPrimaryKeyValue();
+
     }
 }

@@ -2,53 +2,48 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Data.SqlClient;
+using Dapper;
+
 
 namespace TrainingAnalysis.DataStorage
 {
-    internal static class Queries
+    public static class Queries
     {
-        private readonly static String ConnectionString = "Server=.;Database=TrainingAnalysis;Trusted_Connection=True;";
+        private readonly static string ConnectionString = "Server=.;Database=TrainingAnalysis;Trusted_Connection=True;";
 
-        internal static List<T> select<T>(String query, ) where T: IQueryable  
+        public static IEnumerable<T> Select<T>(string query) 
         {
-
-            List<User> users = new List<User>();
-            string query = "SELECT * FROM dbo.users";
-            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            using (var connection = new SqlConnection(ConnectionString))
             {
-                connection.Open();
-                using (SqlCommand command = new SqlCommand(query, connection))
-                {
-                    var reader = command.ExecuteReader();
-                    int ordName = reader.GetOrdinal("username");
-                    var columnSchema = reader.GetColumnSchema();
-                    while (reader.Read())
-                    {
-                        string username = reader.GetString(ordName);
-                    }
-                }
-                return 0;
+                return connection.Query<T>(query);
             }
         }
 
-        internal static bool Insert(string username, string password)
+        public static Enums.ErrorString Execute(string query)
         {
-            string query = $"INSERT INTO {TableName} VALUES ('{username}', '{password}');";
-            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            using (var connection = new SqlConnection(ConnectionString))
             {
-                connection.Open();
-                using (SqlCommand command = new SqlCommand(query, connection))
-                {
-                    try
-                    {
-                        int rowsAffected = command.ExecuteNonQuery();
-                        return rowsAffected == 1;
-                    }
-                    catch (SqlException)
-                    {
-                        return false;
-                    }
-      
+                int res = connection.Execute(query);
+                return res > 0 ? Enums.ErrorString.OK : Enums.ErrorString.NOK;
+            }
+        }
 
+        public static Enums.ErrorString InsertSingleAllColumns(IQueryable obj)
+        {
+            string query = $"INSERT INTO {obj.GetTableName()} VALUES {obj.FormatArgsSQL()};";
+            return Execute(query);
+        }
+
+        public static Enums.ErrorString InsertSingle(IQueryable obj)
+        {
+            string query = $"INSERT INTO {obj.GetTableName()} {obj.FormatColumnsSQL()} VALUES {obj.FormatArgsSQL()};";
+            return Execute(query);
+        }
+        
+        public static Enums.ErrorString DeleteWithPrimaryKey(IQueryable obj)
+        {
+            string query = $"DELETE FROM {obj.GetTableName()} WHERE {obj.GetPrimaryKeyName()} = {obj.GetPrimaryKeyValue()};";
+            return Execute(query);
+        }
     }
 }
